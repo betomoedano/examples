@@ -28,6 +28,11 @@ import { mutations, schema, userMutations } from '../schema/index';
 import LoadingLiveStore from '@/components/LoadingLiveStore';
 import ThemeProvider from '@/context/ThemeProvider';
 import { NavigationHistoryTracker } from '@/context/navigation-history';
+import { vexo } from 'vexo-analytics';
+
+if (process.env.EXPO_PUBLIC_VEXO_KEY) {
+  vexo(process.env.EXPO_PUBLIC_VEXO_KEY);
+}
 
 // export const unstable_settings = {
 //   // Ensure any route can link back to `/`

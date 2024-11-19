@@ -1,15 +1,15 @@
-import { View, FlatList } from 'react-native';
+import { View, FlatList, Pressable } from 'react-native';
 import { tables } from '@/schema';
 import { Schema } from 'effect';
 import { querySQL, sql } from '@livestore/livestore';
 import { useRow, useScopedQuery, useStore } from '@livestore/react';
 import IssueItem from '@/components/IssueItem';
 import { ThemedText } from '@/components/ThemedText';
-import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { updateSelectedHomeTab } from '@/schema/mutations';
 import { useUser } from '@/hooks/useUser';
 import { useCallback, useMemo } from 'react';
 import { FlashList } from '@shopify/flash-list';
+import * as Haptics from 'expo-haptics';
 
 const homeTabs = ['Assigned', 'Created'];
 // For reference
@@ -166,6 +166,7 @@ export default function HomeScreen() {
           createdTabGrouping,
           createdTabOrdering,
         )}
+        LIMIT 50
       `,
         {
           schema: Schema.Any,
@@ -225,28 +226,48 @@ export default function HomeScreen() {
         <ThemedText type="subtitle">
           Engineering {`${issuesCount} issues`}
         </ThemedText>
-        <SegmentedControl
-          values={homeTabs}
-          style={{ marginVertical: 12 }}
-          selectedIndex={homeTabs.indexOf(selectedHomeTab)}
-          onChange={(event) => {
-            store.mutate(
-              updateSelectedHomeTab({ tab: event.nativeEvent.value }),
-            );
-          }}
-        />
+        <View className="flex-row gap-2 my-3">
+          <Pressable
+            onPressIn={async () => {
+              await Haptics.selectionAsync();
+              store.mutate(updateSelectedHomeTab({ tab: 'Assigned' }));
+            }}
+            style={{
+              opacity: selectedHomeTab === 'Assigned' ? 1 : 0.5,
+            }}
+            className="flex-1 items-center rounded-lg p-2 bg-zinc-200 dark:bg-zinc-800"
+          >
+            <ThemedText className="text-center" type="defaultSemiBold">
+              Assigned
+            </ThemedText>
+          </Pressable>
+          <Pressable
+            onPressIn={async () => {
+              await Haptics.selectionAsync();
+              store.mutate(updateSelectedHomeTab({ tab: 'Created' }));
+            }}
+            style={{
+              opacity: selectedHomeTab === 'Created' ? 1 : 0.5,
+            }}
+            className="flex-1 items-center rounded-lg p-2 bg-zinc-200 dark:bg-zinc-800"
+          >
+            <ThemedText className="text-center" type="defaultSemiBold">
+              Created
+            </ThemedText>
+          </Pressable>
+        </View>
       </View>
     ),
     [issuesCount, selectedHomeTab, store],
   );
 
   return (
-    <FlashList
+    <FlatList
       data={issues}
       renderItem={renderItem}
       contentContainerClassName="gap-1 px-2"
+      initialNumToRender={100}
       keyExtractor={(item) => item.id.toString()}
-      estimatedItemSize={300}
       ListHeaderComponent={ListHeaderComponent}
     />
   );

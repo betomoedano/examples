@@ -53,6 +53,11 @@ export default function NewIssueScreen() {
               <Text className="text-blue-500 pr-4">Create</Text>
             </Pressable>
           ),
+          headerLeft: () => (
+            <Pressable onPress={() => router.back()}>
+              <Text className="text-blue-500 pl-4">Cancel</Text>
+            </Pressable>
+          ),
           freezeOnBlur: false,
         }}
       />
